@@ -6,9 +6,15 @@ In order for this program to work, please create a .env file with the following 
 WIZ_USERNAME = {enter your username}
 WIZ_PASSWORD = {enter your password}
 
-Then run pip install -r requirements.txt
-(optionally, you can create a virtual environment if needed)
+This program utilizes OpenAI's whisper recognition model.
+Please follow the guide to installing Whisper. https://github.com/openai/whisper
+For more information about the whisper package, check out https://openai.com/index/whisper/
+
+Additionally, please install the following requirements using 'pip install':
+- selenium
+- requests
+
 
 Then run the script and it should auto-solve trivia questions.
-A limitation for this project would be dealing with reCAPTCHAs that prevent the script
-from continuing. For these reCAPTCHAs, you must solve them manually. Once solved, the program will continue execution.
+Current limitations include reCAPTCHA's ability to recognize auto-solving. For these reCAPTCHAs, you must solve them manually. 
+Once solved, the program will continue execution.
