@@ -10,8 +10,8 @@ def wizLogin(driver: WebDriver) -> None: # Locate buttons and enter text needed 
     login = driver.find_element(By.ID, 'loginUserName')
     password = driver.find_element(By.ID, 'loginPassword')
     loginButton = driver.find_element(By.CLASS_NAME, 'wizardButtonInput')
-    login.send_keys(os.getenv("LOGIN"))
-    password.send_keys(os.getenv("PASSWORD"))
+    login.send_keys(os.getenv("WIZ_USERNAME"))
+    password.send_keys(os.getenv("WIZ_PASSWORD"))
     loginButton.click()
 
 def loadTrivia(driver: WebDriver, questions: dict) -> None:
