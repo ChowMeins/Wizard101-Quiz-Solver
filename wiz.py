@@ -4,7 +4,8 @@ from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from dotenv import load_dotenv
-import json, os, time, sys
+import json, os, time, sys, requests
+import whisper
 
 def wizLogin(driver: WebDriver) -> None: # Locate buttons and enter text needed to login
     login = driver.find_element(By.ID, 'loginUserName')
@@ -88,13 +89,50 @@ def solveQuestions(driver: WebDriver, questions: dict, triviaName: str, numSolve
     driver.switch_to.frame('jPopFrame_content')
     claimRewardFinalButton = wait.until(EC.element_to_be_clickable((By.ID, "submit")))
     claimRewardFinalButton.click()
+    time.sleep(3)
+    try:
+        recaptchaWait = WebDriverWait(driver, 5)
+        frames = driver.find_elements(By.TAG_NAME, 'iframe')
+        print(len(frames))
+        for i in range(len(frames)):
+            titleName = frames[i].get_attribute('title')
+            if titleName == 'recaptcha challenge expires in two minutes':
+                driver.switch_to.frame(frames[i])
+        audioChallenge = recaptchaWait.until(EC.element_to_be_clickable((By.ID, 'recaptcha-audio-button')))
+        audioChallenge.click()
+
+        audioElement = recaptchaWait.until(EC.presence_of_element_located((By.ID, 'audio-source')))
+        audioUrl = audioElement.get_attribute('src')
+        downloadMP3(audioUrl)
+        audioTranscribed = transcribeAudio('audio_captcha.mp3')
+        print('Translated audio:', audioTranscribed)
+        audioInput = recaptchaWait.until(EC.presence_of_element_located((By.ID, 'audio-response')))
+        print(audioInput.get_attribute('tag'))
+        audioInput.send_keys(audioTranscribed)
+        verifyButton = recaptchaWait.until(EC.element_to_be_clickable((By.ID, 'recaptcha-verify-button')))
+        verifyButton.click()
+    except Exception as e:
+        print(e)
+        print('reCAPTCHA not found.')
     driver.switch_to.default_content()
-    nextQuiz = wait.until(EC.visibility_of_element_located((By.LINK_TEXT, 'TAKE ANOTHER QUIZ!')))
+
+    wait.until(EC.visibility_of_element_located((By.LINK_TEXT, 'TAKE ANOTHER QUIZ!')))
     time.sleep(1)
 
+def downloadMP3(url: str):
+    response = requests.get(url)
+    if response.status_code == 200:
+        with open('audio_captcha.mp3', 'wb') as file:
+            file.write(response.content)
+        print('Audio CAPTCHA successfully downloaded.')
+
+def transcribeAudio(file: str) -> str:
+    model = whisper.load_model("base")
+    result = model.transcribe(audio='./audio_captcha.mp3')
+    return result['text']
 
 def main():
-    load_dotenv() # Load env variables from .env file
+    load_dotenv(override=True) # Load env variables from .env file
     questions_map = {}
 
     driver = webdriver.Chrome()
