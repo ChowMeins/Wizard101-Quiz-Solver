@@ -163,5 +163,5 @@ cython_debug/
 
 # Extra files generated after running script
 /errors
-.png
-.mp3
+*.png
+*.mp3

@@ -32,14 +32,14 @@ def wizLogin(driver: WebDriver) -> None: # Locate buttons and enter text needed 
     # Enter username
     try:
         login = wait.until(EC.presence_of_element_located((By.ID, 'loginUserName')))
-        sendKeysAtIntervals(login, os.getenv("WIZ_USERNAME"), 0.025)
+        sendKeysAtIntervals(login, os.getenv("WIZ_USERNAME"), 0)
     except:
         logError(driver=driver, errorMsg='Username element not found.', errorComponent='username', exit=True)
     
     # Enter password
     try:
         password = wait.until(EC.presence_of_element_located((By.ID, 'loginPassword')))
-        sendKeysAtIntervals(password, os.getenv("WIZ_PASSWORD"), 0.025)
+        sendKeysAtIntervals(password, os.getenv("WIZ_PASSWORD"), 0.0)
     except:
         logError(driver=driver, errorMsg='Password element not found.', errorComponent='password', exit=True)
 
@@ -59,9 +59,9 @@ def wizLogin(driver: WebDriver) -> None: # Locate buttons and enter text needed 
         loginRecaptchaPresent = False
     # Switch to reCAPTCHA frame
     if loginRecaptchaPresent:
-        frames = wait.until(EC.frame_to_be_available_and_switch_to_it((By.XPATH, '//*[@id="recaptcha"]/div/div/iframe')))
+        frames = wait.until(EC.presence_of_all_elements_located((By.TAG_NAME, 'iframe')))
         for frame in frames:
-            print('Pre Verification Frame', frame.get_attribute('title'), frame.get_attribute('id'))
+            #print('Pre Verification Frame', frame.get_attribute('title'), frame.get_attribute('id'))
             if frame.get_attribute('title') == 'reCAPTCHA':
                 driver.switch_to.frame(frame)
                 # Check the verify checkbox
@@ -73,8 +73,6 @@ def wizLogin(driver: WebDriver) -> None: # Locate buttons and enter text needed 
                 # Click the audio button
                 try:
                     frames = driver.find_elements(By.TAG_NAME, 'iframe')
-                    for frame in frames:
-                        print('Current captcha frame', frame.get_attribute('title'), frame.get_attribute('id'))
                     audioButton = wait.until(EC.presence_of_element_located((By.ID, 'recaptcha-audio-button')))
                     audioButton.click()
                 except:
@@ -129,9 +127,6 @@ def navigateTrivia(driver: WebDriver, questions: dict, numSolved: int) -> None:
 def solveQuestions(driver: WebDriver, questions: dict, triviaName: str, numSolved: int) -> None:
     questionsSolved = 0
     wait = WebDriverWait(driver, 10)
-    possible_answers = [] # If correct answer choice matches, append answer text to possible_answers (multiple question may have same answer)
-    answerChoices = []
-    correctAnswerFound = False
 
     while(questionsSolved < 12): # Quizzes are each 12 questions
         # Wait for next question to fade in
@@ -143,7 +138,7 @@ def solveQuestions(driver: WebDriver, questions: dict, triviaName: str, numSolve
         # Load question and answers from the webpage
         try:
             quizQuestion = wait.until(EC.presence_of_element_located((By.CLASS_NAME, 'quizQuestion')))
-            answers = wait.until(EC.presence_of_all_elements_located((By.CLASS_NAME, 'answerText')))
+            answerDivs = wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, '.answer.fadeIn')))
             qa_pairs = questions.get(triviaName) # Loads qa pairs with a list of elements: [question, answer] from .json file
         except:
             logError(driver=driver, errorMsg='Question/Answer elements not found.', errorComponent='QA', exit=True)
@@ -152,26 +147,31 @@ def solveQuestions(driver: WebDriver, questions: dict, triviaName: str, numSolve
         if qa_pairs == None:
             logError(driver=driver, errorMsg='Question not found', errorComponent='newQA')
         else:
+            possible_answers = [] # If correct answer choice matches, append answer text to possible_answers (multiple question may have same answer)
             for pair in qa_pairs:
                 if quizQuestion.text == pair[0]:
                     possible_answers.append(pair[1])
+            
+            answerChoices = []
+            correctAnswerFound = False
+
             for a in possible_answers:
-                print(a)
-                for answer in answers: # answers is the 4 divs that include the answers that appears on the webpage
+                for answer in answerDivs: # answers is the 4 divs that include the answers that appears on the webpage
                     try:
-                        answerChoices.append(answer.text)
-                        answerBox = wait.until(EC.presence_of_element_located((By.CLASS_NAME, 'largecheckbox')))
+                        answerText = answer.find_element(By.CLASS_NAME, 'answerText')
+                        answerChoices.append(answerText.text)
+                        answerBox = answer.find_element(By.CLASS_NAME, 'largecheckbox')
                         if(answer.text in possible_answers):
                             answerBox.click()
                             nextButton.click()
                             questionsSolved += 1
                             correctAnswerFound = True
+                            print(f'Question #{questionsSolved} solved!')
                             break
                     except:
                         logError(driver=driver, errorMsg='Answer checkbox not found', errorComponent='answer', exit=True)
                 if (correctAnswerFound):
                     break
-                print(f'Question #{questionsSolved} solved!')
 
                 if (correctAnswerFound == False):
                     question = quizQuestion.text
@@ -183,28 +183,46 @@ def solveQuestions(driver: WebDriver, questions: dict, triviaName: str, numSolve
     # Claim reward
     try:
         claimRewardFirstButton = wait.until(EC.element_to_be_clickable((By.LINK_TEXT, "CLAIM YOUR REWARD")))
-        claimRewardFirstButton.click()
+        claimRewardFirstButton.click() # Opens up jpopFrame_content frame
     except:
         logError(driver=driver, errorMsg='First claim reward button not found.', errorComponent='rewardButton1st', exit=True)
 
     driver.switch_to.frame('jPopFrame_content')
     claimRewardFinalButton = wait.until(EC.element_to_be_clickable((By.ID, "submit")))
     claimRewardFinalButton.click()
-    time.sleep(1)
+    try:
+        driver.switch_to.default_content()
+        takeAnotherQuizBtn = WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.LINK_TEXT, 'TAKE ANOTHER QUIZ!')))
+        print(takeAnotherQuizBtn.text)
+    except:
+        solveCaptcha(driver)
 
-
+def solveCaptcha(driver: WebDriver):
+    wait = WebDriverWait(driver, 10000)
     try:
         recaptchaWait = WebDriverWait(driver, 5)
-        frames = driver.find_elements(By.TAG_NAME, 'iframe')
-        #print(len(frames))
-        for i in range(len(frames)):
-            titleName = frames[i].get_attribute('title')
+        # Switch the jpopFrame
+        wiz_frames = driver.find_elements(By.TAG_NAME, 'iframe')
+        for frame in wiz_frames:
+            print(frame.get_attribute('id'))
+            if frame.get_attribute('id') == 'jPopFrame_content':
+                driver.switch_to.frame(frame)
+                break
+        # Switch to recaptcha frame
+        recaptcha_frames = driver.find_elements(By.TAG_NAME, 'iframe')
+        for frame in recaptcha_frames:
+            titleName = frame.get_attribute('title')
             if titleName == 'recaptcha challenge expires in two minutes':
-                driver.switch_to.frame(frames[i])
+                driver.switch_to.frame(frame)
+                break
+        # Click the headphone logo to switch to an aural challenge
         audioChallenge = recaptchaWait.until(EC.element_to_be_clickable((By.ID, 'recaptcha-audio-button')))
         audioChallenge.click()
     except: 
-        logError(driver=driver, errorMsg='reCAPTCHA audio button not found.', errorComponent='recaptchaButton', exit=True)
+        try: 
+            pass
+        except:
+            logError(driver=driver, errorMsg='reCAPTCHA audio button not found.', errorComponent='recaptchaButton', exit=True)
     try:
         playAudioButton = wait.until(EC.presence_of_element_located((By.ID, ':2')))
         playAudioButton.click()
@@ -230,7 +248,7 @@ def solveQuestions(driver: WebDriver, questions: dict, triviaName: str, numSolve
     try:
         wait.until(EC.visibility_of_element_located((By.LINK_TEXT, 'TAKE ANOTHER QUIZ!')))
     except:
-        logError(driver=driver, errorMsg='\"Take Another Quiz!\" text not found. Rewards may have not been claimed.', exit=False)
+        logError(driver=driver, errorMsg='\"Take Another Quiz!\" text not found. Rewards may have not been claimed.', errorComponent='takeAnotherQuiz', exit=False)
 
 def downloadMP3(url: str):
     response = requests.get(url)
@@ -255,11 +273,10 @@ def main():
     chromeOptions = Options()
     chromeOptions.add_argument("--incognito")
     #chromeOptions.add_argument("--headless")
-    #chromeOptions.add_argument("--disable-gpu")
-    #chromeOptions.add_argument("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36")
+    chromeOptions.add_argument("--disable-gpu")
+    chromeOptions.add_argument("--mute-audio")
+    chromeOptions.add_argument("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36")
     driver = webdriver.Chrome(options=chromeOptions)
-    driver.delete_all_cookies()
-    driver.execute_cdp_cmd("Network.clearBrowserCache", {})
 
     driver.get("https://www.wizard101.com/game/trivia")
     wizLogin(driver)
