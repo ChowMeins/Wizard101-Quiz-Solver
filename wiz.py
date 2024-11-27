@@ -28,19 +28,21 @@ def sendKeysAtIntervals(element: WebElement, input: str, interval: float) -> Non
         time.sleep(interval)
 
 def wizLogin(driver: WebDriver) -> None: # Locate buttons and enter text needed to login
-    wait = WebDriverWait(driver, 300)
+    wait = WebDriverWait(driver, 60)
 
     # Enter username
     try:
         login = wait.until(EC.presence_of_element_located((By.ID, 'loginUserName')))
-        sendKeysAtIntervals(login, os.getenv("WIZ_USERNAME"), 0)
+        login.send_keys(os.getenv("WIZ_USERNAME"))
+        #sendKeysAtIntervals(login, os.getenv("WIZ_USERNAME"), 0)
     except:
         logError(driver=driver, errorMsg='Username element not found.', errorComponent='username', exit=True)
     
     # Enter password
     try:
         password = wait.until(EC.presence_of_element_located((By.ID, 'loginPassword')))
-        sendKeysAtIntervals(password, os.getenv("WIZ_PASSWORD"), 0.0)
+        password.send_keys(os.getenv("WIZ_PASSWORD"))
+        #sendKeysAtIntervals(password, os.getenv("WIZ_PASSWORD"), 0.0)
     except:
         logError(driver=driver, errorMsg='Password element not found.', errorComponent='password', exit=True)
 
@@ -50,6 +52,14 @@ def wizLogin(driver: WebDriver) -> None: # Locate buttons and enter text needed 
         loginButton.click()
     except:
         logError(driver=driver, errorMsg='Login button element not found.', errorComponent='loginButton', exit=True)
+    # Check to see if user has successfully logged in
+    try:
+        username = driver.find_element(By.ID, "userNameOverflow")
+        print("Successfully logged in:", username.text)
+    except:
+        logError(driver=driver, errorMsg='Account not logged in succesfully', errorComponent='userName', exit=True)
+        
+    # FOR RECAPTCHA:
     # See if reCAPTCHA frame shows up
     try:
         wizPopupFrame = driver.find_element(By.ID, 'jPopFrame_content')
@@ -261,7 +271,7 @@ def downloadMP3(url: str):
 def transcribeAudio(file: str) -> str:
     model = whisper.load_model("base")
     result = model.transcribe(audio='./audio_captcha.mp3')
-    return result['text']
+    return result['text'].lower().rstrip('.') # Make transcribed text lowercase and remove period at end of sentence if present
 
 def main():
     os.makedirs('errors', exist_ok=True)
