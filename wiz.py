@@ -4,6 +4,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from dotenv import load_dotenv
@@ -275,8 +276,10 @@ def main():
     #chromeOptions.add_argument("--headless")
     chromeOptions.add_argument("--disable-gpu")
     chromeOptions.add_argument("--mute-audio")
-    chromeOptions.add_argument("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36")
-    driver = webdriver.Chrome(options=chromeOptions)
+    #chromeOptions.add_argument("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36")
+
+    chromeService = Service('/usr/bin/chromedriver')
+    driver = webdriver.Chrome(service=chromeService, options=chromeOptions)
 
     driver.get("https://www.wizard101.com/game/trivia")
     wizLogin(driver)
