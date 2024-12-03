@@ -209,7 +209,7 @@ def solveQuestions(driver: WebDriver, questions: dict, triviaName: str, numSolve
         solveCaptcha(driver)
 
 def solveCaptcha(driver: WebDriver):
-    wait = WebDriverWait(driver, 10000)
+    wait = WebDriverWait(driver, 10)
     try:
         recaptchaWait = WebDriverWait(driver, 5)
         # Switch the jpopFrame
@@ -218,6 +218,7 @@ def solveCaptcha(driver: WebDriver):
             print(frame.get_attribute('id'))
             if frame.get_attribute('id') == 'jPopFrame_content':
                 driver.switch_to.frame(frame)
+                print(f'switched to {id} frame.')
                 break
         # Switch to recaptcha frame
         recaptcha_frames = driver.find_elements(By.TAG_NAME, 'iframe')
@@ -225,24 +226,32 @@ def solveCaptcha(driver: WebDriver):
             titleName = frame.get_attribute('title')
             if titleName == 'recaptcha challenge expires in two minutes':
                 driver.switch_to.frame(frame)
+                print(f'switched to {titleName} frame.')
                 break
         # Click the headphone logo to switch to an aural challenge
         audioChallenge = recaptchaWait.until(EC.element_to_be_clickable((By.ID, 'recaptcha-audio-button')))
         audioChallenge.click()
+        #print('audio challenge started')
     except: 
-        try: 
-            pass
-        except:
-            logError(driver=driver, errorMsg='reCAPTCHA audio button not found.', errorComponent='recaptchaButton', exit=True)
+        logError(driver=driver, errorMsg='reCAPTCHA audio button not found.', errorComponent='recaptchaButton', exit=True)
     try:
-        playAudioButton = wait.until(EC.presence_of_element_located((By.ID, ':2')))
+        playAudioButton = recaptchaWait.until(EC.presence_of_element_located((By.ID, ':2')))
         playAudioButton.click()
+        #print('play audio')
     except:
+        dom = driver.execute_script("return document.documentElement.outerHTML;")
+    
+    # Save the DOM to a text file
+        with open("dom_output.html", "w", encoding="utf-8") as file:
+            file.write(dom)
+    
+        #print("DOM has been saved to dom_output.html")
         logError(driver=driver, errorMsg='reCAPTCHA play button not found.', errorComponent='recaptchaPlay', exit=True)
     try:   
         audioElement = recaptchaWait.until(EC.presence_of_element_located((By.ID, 'audio-source')))
         audioUrl = audioElement.get_attribute('src')
         downloadMP3(audioUrl)
+        #print('downloading mp3')
         audioTranscribed = transcribeAudio('audio_captcha.mp3')
         #print('Translated audio:', audioTranscribed)
         audioInput = recaptchaWait.until(EC.presence_of_element_located((By.ID, 'audio-response')))
@@ -252,6 +261,7 @@ def solveCaptcha(driver: WebDriver):
     try:
         verifyButton = recaptchaWait.until(EC.element_to_be_clickable((By.ID, 'recaptcha-verify-button')))
         verifyButton.click()
+        #print('verify button clicked')
     except:
         logError(driver=driver, errorMsg='reCAPTCHA verify button not found.', errorComponent='recaptchaVerify', exit=True)
 
@@ -259,7 +269,13 @@ def solveCaptcha(driver: WebDriver):
     try:
         wait.until(EC.visibility_of_element_located((By.LINK_TEXT, 'TAKE ANOTHER QUIZ!')))
     except:
+        dom = driver.execute_script("return document.documentElement.outerHTML;")
+    
+        # Save the DOM to a text file
+        with open("dom_output.html", "w", encoding="utf-8") as file:
+            file.write(dom)
         logError(driver=driver, errorMsg='\"Take Another Quiz!\" text not found. Rewards may have not been claimed.', errorComponent='takeAnotherQuiz', exit=False)
+    time.sleep(2)
 
 def downloadMP3(url: str):
     response = requests.get(url)
@@ -286,12 +302,14 @@ def main():
     #chromeOptions.add_argument("--headless")
     chromeOptions.add_argument("--disable-gpu")
     chromeOptions.add_argument("--mute-audio")
-    #chromeOptions.add_argument("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36")
+    chromeOptions.add_argument("--user-agent=user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36")
+    
 
     chromeService = Service('/usr/bin/chromedriver')
     driver = webdriver.Chrome(service=chromeService, options=chromeOptions)
 
     driver.get("https://www.wizard101.com/game/trivia")
+    #driver.maximize_window()
     wizLogin(driver)
     loadTrivia(driver, questions_map)
     navigateTrivia(driver, questions_map, 0)
