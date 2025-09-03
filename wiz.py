@@ -215,10 +215,10 @@ def solveCaptcha(driver: WebDriver):
         # Switch the jpopFrame
         wiz_frames = driver.find_elements(By.TAG_NAME, 'iframe')
         for frame in wiz_frames:
-            print(frame.get_attribute('id'))
+            #print(frame.get_attribute('id'))
             if frame.get_attribute('id') == 'jPopFrame_content':
                 driver.switch_to.frame(frame)
-                print(f'switched to {id} frame.')
+                #print(f'switched to {id} frame.')
                 break
         # Switch to recaptcha frame
         recaptcha_frames = driver.find_elements(By.TAG_NAME, 'iframe')
@@ -226,7 +226,7 @@ def solveCaptcha(driver: WebDriver):
             titleName = frame.get_attribute('title')
             if titleName == 'recaptcha challenge expires in two minutes':
                 driver.switch_to.frame(frame)
-                print(f'switched to {titleName} frame.')
+                #print(f'switched to {titleName} frame.')
                 break
         # Click the headphone logo to switch to an aural challenge
         audioChallenge = recaptchaWait.until(EC.element_to_be_clickable((By.ID, 'recaptcha-audio-button')))
@@ -275,7 +275,7 @@ def solveCaptcha(driver: WebDriver):
         with open("dom_output.html", "w", encoding="utf-8") as file:
             file.write(dom)
         logError(driver=driver, errorMsg='\"Take Another Quiz!\" text not found. Rewards may have not been claimed.', errorComponent='takeAnotherQuiz', exit=False)
-    time.sleep(2)
+    time.sleep(1)
 
 def downloadMP3(url: str):
     response = requests.get(url)
@@ -305,11 +305,11 @@ def main():
     chromeOptions.add_argument("--user-agent=user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36")
     
 
-    chromeService = Service('/usr/bin/chromedriver')
-    driver = webdriver.Chrome(service=chromeService, options=chromeOptions)
+    #chromeService = Service('/usr/bin/chromedriver')
+    driver = webdriver.Chrome(options=chromeOptions)
 
     driver.get("https://www.wizard101.com/game/trivia")
-    #driver.maximize_window()
+    driver.maximize_window()
     wizLogin(driver)
     loadTrivia(driver, questions_map)
     navigateTrivia(driver, questions_map, 0)
@@ -318,4 +318,5 @@ def main():
 if __name__ == '__main__':
     main()
     print("Maximum daily quizzes taken. Closing program...")
+    os.remove('audio_captcha.mp3')
     sys.exit(0)
