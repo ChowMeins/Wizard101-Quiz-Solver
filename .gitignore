@@ -162,5 +162,5 @@ cython_debug/
 #.idea/
 
 # Extra files generated after running script
-*.txt
 json_test.py
+*.sh

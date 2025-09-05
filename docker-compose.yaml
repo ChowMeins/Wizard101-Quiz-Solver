@@ -1,0 +1,13 @@
+services:
+  wizard101_quiz_solver:
+    build: .
+    container_name: Wizard101_Quiz_Solver
+    volumes:
+      - ./src:/src
+      - ./.env:/.env
+    working_dir: /src
+    environment:
+      - DISPLAY=:99
+    # Optional: if you need to see logs in real-time
+    stdin_open: true
+    tty: true
