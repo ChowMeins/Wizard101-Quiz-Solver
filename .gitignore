@@ -162,8 +162,5 @@ cython_debug/
 #.idea/
 
 # Extra files generated after running script
-/errors
-*.png
-*.mp3
-*.sh
-*.html
+*.txt
+json_test.py
