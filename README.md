@@ -4,6 +4,8 @@
 
 An intelligent Python bot that automatically solves Wizard101's daily trivia quizzes to earn free crowns. Built with Playwright for web automation and Faster Whisper for audio captcha solving.
 
+<img src="https://github.com/ChowMeins/Wizard101-Quiz-Solver/blob/main/Wizard101%20Trivia%20Webpage.png" width="75%" height="75%"/>
+
 ---
 
 ## **Features**
