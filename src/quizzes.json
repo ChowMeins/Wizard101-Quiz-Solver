@@ -1570,6 +1570,14 @@
             "Beauty, innocence, peace and rebirth"
         ],
         [
+            "Norse Mythology is the mythology from what group of people?",
+            "North Germanic"
+        ],
+        [
+            "Who was Odin's father?",
+            "Borr"
+        ],
+        [
             "Who was the first Norse god?",
             "Buri"
         ],
@@ -1626,6 +1634,10 @@
             "Snotra"
         ],
         [
+            "Who was the goddess of the sea?",
+            "Ran"
+        ],
+        [
             "Who was the goddess of the sun?",
             "Sol"
         ],
@@ -1639,6 +1651,26 @@
         ]
     ],
     "Pirate101 Adventure": [
+        [
+            "What does the Frogfather ask you to steal from The Presidio?",
+            "Spices"
+        ],
+        [
+            "What gang does the Magnificent Seven fight in Tumbleweed Skyway?",
+            "The Wild Bunch"
+        ],
+        [
+            "What member of Kane's court is the Armada's Spymaster?",
+            "Deacon"
+        ],
+        [
+            "Where do you find your parent's ship?",
+            "Jonah Town"
+        ],
+        [
+            "Who is the bartender of the Kraken Skulls Tavern?",
+            "Skinny Pete"
+        ],
         [
             "Who is the Leader of the Scurvy Dogs?",
             "Captain Dan"
@@ -1678,10 +1710,6 @@
         [
             "What class is Ratbeard?",
             "Buccaneer"
-        ],
-        [
-            "What gang does the Magnificent Seven fight in Tumbleweed Skyway?",
-            "The WIld Bunch"
         ],
         [
             "General Tso's favorite pet is?",
@@ -1900,8 +1928,20 @@
             "American Buffalo"
         ],
         [
+            "What is the state animal of Maine?",
+            "Moose"
+        ],
+        [
             "What is the state animal of Missouri?",
             "Missouri Mule"
+        ],
+        [
+            "What is the state animal of Montana?",
+            "Grizzly Bear"
+        ],
+        [
+            "What is the state animal of Nevada?",
+            "Desert Bighorn Sheep"
         ],
         [
             "What is the state animal of Nevada?",
@@ -1913,7 +1953,7 @@
         ],
         [
             "What is the state mammal of North Carolina?",
-            "Gray Squirrel"
+            "Grey Squirrel"
         ],
         [
             "What is the state animal of New Mexico?",
@@ -1924,12 +1964,16 @@
             "Beaver"
         ],
         [
+            "What is the state animal of Oklahoma?",
+            "Buffalo"
+        ],
+        [
             "What is the state wild game animal of Kentucky?",
             "Gray Squirrel"
         ],
         [
-            "What is the state dog of New Hampshire?",
-            "Chinook"
+            "What is the state wildlife animal of Delaware?",
+            "Grey Fox"
         ],
         [
             "What is the state animal of Ohio?",
@@ -1984,6 +2028,14 @@
             "Boston Terrier"
         ],
         [
+            "What is the state dog of New Hampshire?",
+            "Chinook"
+        ],
+        [
+            "What is the state dog of Pennsylvania?",
+            "Great Dane"
+        ],
+        [
             "What is the state dog of South Carolina?",
             "Boykin Spaniel"
         ],
@@ -2002,6 +2054,10 @@
         [
             "What is the state horse of Idaho?",
             "Appaloosa"
+        ],
+        [
+            "What is the state horse of Kentucky?",
+            "Thoroughbred"
         ],
         [
             "What is the state horse of Maryland?",
@@ -2070,6 +2126,10 @@
         [
             "What is the state marine mammal of Massachusetts?",
             "Right Whale"
+        ],
+        [
+            "What is the state marine mammal of Hawaii?",
+            "Humpback Whale"
         ],
         [
             "What is the state small mammal of Texas?",
@@ -2485,7 +2545,7 @@
         ],
         [
             "What is the capital of Wyoming?",
-            "Chenyenne"
+            "Cheyenne"
         ]
     ],
     "State Nicknames": [
@@ -2942,6 +3002,10 @@
             "Heart"
         ],
         [
+            "What is the title of the book that is floating around the Wizard City Library?",
+            "Basic Wizarding & Proper Care of Familiars"
+        ],
+        [
             "What's the name of the balance tree?",
             "Niles"
         ],
@@ -3324,7 +3388,7 @@
     ],
     "Wizard101 Wizard City": [
         [
-            "What are the main colors for the myth school?",
+            "What are the main colors for the Myth School?",
             "Blue and Gold"
         ],
         [

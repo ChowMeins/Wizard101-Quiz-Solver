@@ -11,8 +11,7 @@ RUN python -m pip install --upgrade pip \
     && playwright install-deps \
     && playwright install firefox
 
-RUN playwright install-deps
-RUN playwright install firefox
+RUN python -c "from faster_whisper import WhisperModel; WhisperModel('distil-small.en')"
 
 #What rm -rf /var/lib/apt/lists/* does:
 #This command removes the package lists that apt-get update downloads. 

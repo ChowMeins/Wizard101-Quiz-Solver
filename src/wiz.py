@@ -86,7 +86,7 @@ def main():
                 print(f"Quiz '{title}' has already been completed for today. Skipping...")
                 continue
             except:
-                print(f"Starting quiz: {title}")
+                #print(f"Starting quiz: {title}")
                 pass
 
             # Initialize answer key as a dictionary of lists (each list contains answers for a question)
@@ -131,6 +131,7 @@ def main():
                         #print(f"- {answer_text}")
                         if answer_text in answer_key[question_text]:
                             answer[0].wait_for(state="visible")
+                            page.wait_for_timeout(1000)
                             answer[0].click()
                             correct_answer_found = True
                             correct_answer_text = answer_text
@@ -144,10 +145,11 @@ def main():
                                 f.write(f"- {answer_text}\n")
                             f.write("\n\n")
                         answer_choice[0][0].wait_for(state="visible")
+                        page.wait_for_timeout(1000)
                         answer_choice[0][0].click()
-                        print(f"No correct answer found in the answer key. Choosing first answer choice: {answer_choice[0][1].inner_text()}.")
-                    else:
-                        print(f"Correct answer found: {correct_answer_text}")
+                        #print(f"No correct answer found in the answer key. Choosing first answer choice: {answer_choice[0][1].inner_text()}.")
+                    ##else:
+                        #print(f"Correct answer found: {correct_answer_text}")
                 except Exception as e:
                     print(f"Error selecting correct answer: {e}")
                     browser.close()
@@ -157,6 +159,7 @@ def main():
                 try:
                     next_question_button = page.locator("button[id='nextQuestion']")
                     next_question_button.wait_for(state="visible")
+                    page.wait_for_timeout(500)
                     next_question_button.click()
                 except Exception as e:
                     print(f"Error clicking Next Question button: {e}")
@@ -175,7 +178,7 @@ def main():
             
             # Handle reward iframe and log results
             try:
-                page.wait_for_load_state("networkidle", timeout=2000)
+                page.wait_for_load_state("networkidle")
                 page.wait_for_selector("iframe[id='jPopFrame_content']", state="visible")
                 reward_iframe = page.frame_locator("iframe[id='jPopFrame_content']")
                 reward_submit = reward_iframe.locator("a[id='submit'], a[class='buttonsubmit']")
@@ -194,7 +197,7 @@ def main():
                 recaptcha_iframe.wait_for(state="visible", timeout=5000)
                 recaptcha_iframe = reward_iframe.frame_locator("iframe[title*='recaptcha']")
             except:
-                print("No reCAPTCHA challenge detected.")
+                #print("No reCAPTCHA challenge detected.")
                 recaptcha_found = False
                 pass
             
@@ -206,7 +209,7 @@ def main():
                     audio_button = recaptcha_iframe.locator("button[id='recaptcha-audio-button']")
                     audio_button.wait_for(state="visible")
                     audio_button.click()
-                    print("reCAPTCHA challenge detected. Solving now...")
+                    #print("reCAPTCHA challenge detected. Solving now...")
                 except Exception as e:
                     print(f"Error trigger audio reCAPTCHA challenge: {e}")
 
@@ -216,7 +219,7 @@ def main():
                         page.wait_for_timeout(2000)
                         audio_div = recaptcha_iframe.locator("div[class='rc-audiochallenge-control']")
                         play_audio_button = audio_div.locator("button", has_text="PLAY")
-                        play_audio_button.wait_for(state="visible")
+                        play_audio_button.wait_for(state="visible", timeout=5000)
                         play_audio_button.click()
                     except Exception as e:
                         # Indicates that reCAPTCHA detected automated queries, reload to try and resolve the issue
@@ -230,7 +233,6 @@ def main():
                         audio_url = audio_source.get_attribute("src")
                     except Exception as e:
                         print(f"Error retrieving audio URL: {e}")
-                        time.sleep(100000)
                         browser.close()
                         return
                     
@@ -238,11 +240,10 @@ def main():
                     try:
                         captcha_solution_text = transcribe_audio(audio_url)
                         captcha_input = recaptcha_iframe.locator("input[id='audio-response']")
-                        print(f"Transcribed audio: {captcha_solution_text}")
+                        #print(f"Transcribed audio: {captcha_solution_text}")
                         captcha_input.type(text=captcha_solution_text, delay=100)
                     except Exception as e:
                         print(f"Error inputting transcribed audio: {e}")
-                        time.sleep(100000)
                         browser.close()
                         return
 
@@ -251,10 +252,9 @@ def main():
                         verify_button = recaptcha_iframe.locator("button[id='recaptcha-verify-button']")
                         verify_button.wait_for(state="visible")
                         verify_button.click()
-                        print("Submitted reCAPTCHA solution. Waiting for verification...")
+                        #print("Submitted reCAPTCHA solution. Waiting for verification...")
                     except Exception as e:
                         print(f"Error clicking Verify button: {e}")
-                        time.sleep(100000)
                         browser.close()
                         return
                     # Check if the reCAPTCHA iframe is still present, solve again if so (usually means solution was incorrect or multiple solutions are required)
@@ -264,7 +264,7 @@ def main():
                         reload_button = recaptcha_iframe.locator("button[id='recaptcha-reload-button']")
                         reload_button.wait_for(state="visible")
                         reload_button.click()
-                        print("Multiple reCAPTCHA solutions required. Retrying...")
+                        #print("Multiple reCAPTCHA solutions required. Retrying...")
                     # Break from the loop if the reCAPTCHA was solved successfully
                     except:
                         recaptcha_solved = True
@@ -273,7 +273,7 @@ def main():
                 
             # Log quiz results if 100% score not achieved
             try:
-                page.wait_for_load_state("load")
+                page.wait_for_load_state("networkidle")
                 quiz_score = page.locator("div[class*='quizScore']")
                 quiz_score.wait_for(state="visible")
                 quiz_score = quiz_score.inner_text().strip()
@@ -287,12 +287,12 @@ def main():
                         quiz_results = page.locator("div[id='quizResults']")
                         quiz_results.wait_for(state="visible")
                         log_file.write(f"{quiz_results.inner_text()}\n\n")
-                        print(f"Quiz '{title}' completed with score: {quiz_score}\n")
             except Exception as e:
                 print(f"Error logging quiz results: {e}")
-                time.sleep(100000)
                 browser.close()
                 return
+            finally:
+                print(f"Quiz '{title}' completed with score: {quiz_score}")
 
         
 
