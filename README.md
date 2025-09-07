@@ -8,7 +8,7 @@ An intelligent Python bot that automatically solves Wizard101's daily trivia qui
 
 ---
 
-> **A previous version using Selenium exists, but is unreliable and not recommended to use. **
+> **A previous version using Selenium exists, but is unreliable and not recommended to use**
 ## **Features**
 
 - **Fully Automated**: Handles login, navigation, and quiz solving
