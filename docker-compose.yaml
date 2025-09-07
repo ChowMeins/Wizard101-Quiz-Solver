@@ -5,6 +5,7 @@ services:
     volumes:
       - ./src:/src
       - ./.env:/.env
+      - ./logs:/logs
     working_dir: /src
     environment:
       - DISPLAY=:99

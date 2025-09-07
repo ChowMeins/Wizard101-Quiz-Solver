@@ -143,7 +143,7 @@ def main():
                             for answer in answer_choice:
                                 answer_text = answer[1].inner_text().strip()
                                 f.write(f"- {answer_text}\n")
-                            f.write("\n\n")
+                            f.write("\n")
                         answer_choice[0][0].wait_for(state="visible")
                         page.wait_for_timeout(1000)
                         answer_choice[0][0].click()
