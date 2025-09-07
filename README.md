@@ -37,7 +37,7 @@ An intelligent Python bot that automatically solves Wizard101's daily trivia qui
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/wizard101-quiz-solver.git
+   git clone https://github.com/ChowMeins/Wizard101-Quiz-Solver
    cd wizard101-quiz-solver
    ```
 
