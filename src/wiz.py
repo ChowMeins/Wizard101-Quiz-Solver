@@ -1,6 +1,6 @@
 import random
 from playwright.sync_api import sync_playwright
-import time
+import datetime
 import json
 from collections import defaultdict
 import os
@@ -167,7 +167,7 @@ def main():
                                 (button.style.visibility === 'visible' || getComputedStyle(button).visibility === 'visible');
                         }"""
                     )
-                    page.wait_for_timeout(500)
+                    page.wait_for_timeout(1000)
                     next_question_button.click()
                 except Exception as e:
                     print(f"Error clicking Next Question button: {e}")
@@ -181,6 +181,9 @@ def main():
                 claim_rewards_button.click()
             except Exception as e:
                 print(f"Error claiming rewards: {e}")
+                timestamp = datetime.now().strftime("%m-%d_%H-%M-%S")
+                filename = f"screenshot_{timestamp}.png"
+                page.screenshot(path=f'../snapshots/{filename}')
                 browser.close()
                 return
             
