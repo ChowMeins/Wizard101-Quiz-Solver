@@ -1614,6 +1614,14 @@
             "Dagr"
         ],
         [
+            "Who was the goddess of old age?",
+            "Elli"
+        ],
+        [
+            "Who was the god of poetry, music, and the harp?",
+            "Bragi"
+        ],
+        [
             "Who was the god of war and the \"All Father\"?",
             "Odin"
         ],
@@ -1632,6 +1640,10 @@
         [
             "Who was the goddess of marriage and motherhood?",
             "Frigg"
+        ],
+        [
+            "Who was the goddess of night?",
+            "Nott"
         ],
         [
             "Who was the goddess of prudence?",
@@ -2855,11 +2867,11 @@
         ],
         [
             "In Grizzleheim, the Ravens want to bring about:",
-            "The Everwinter, to cover the world in ice."
+            "The Everwinter, to cover the world in ice:"
         ],
         [
             "Shaka Zebu is known best as:",
-            "The Greatest Living Zebra Warrior."
+            "The Greatest Living Zebra Warrior"
         ],
         [
             "What determines the colors of the manders in Krok?",
@@ -2891,7 +2903,7 @@
         ],
         [
             "What is unique about Falmea's Classroom?",
-            "There are scortch marks on the celing"
+            "There are scorch marks on the celing"
         ],
         [
             "What school is the Gurtok Demon focused on?",
