@@ -158,7 +158,15 @@ def main():
                 # Click the Next Question button
                 try:
                     next_question_button = page.locator("button[id='nextQuestion']")
-                    next_question_button.wait_for(state="visible")
+                    # Wait for both the fadeIn class AND visibility
+                    page.wait_for_function(
+                        """() => {
+                            const button = document.getElementById('nextQuestion');
+                            return button && 
+                                button.classList.contains('fadeIn') && 
+                                (button.style.visibility === 'visible' || getComputedStyle(button).visibility === 'visible');
+                        }"""
+                    )
                     page.wait_for_timeout(500)
                     next_question_button.click()
                 except Exception as e:
