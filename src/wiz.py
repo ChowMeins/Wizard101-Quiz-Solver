@@ -181,7 +181,7 @@ def main():
                 claim_rewards_button.click()
             except Exception as e:
                 print(f"Error claiming rewards: {e}")
-                timestamp = datetime.now().strftime("%m-%d_%H-%M-%S")
+                timestamp = datetime.datetime.now().strftime("%m-%d_%H-%M-%S")
                 filename = f"screenshot_{timestamp}.png"
                 page.screenshot(path=f'../snapshots/{filename}')
                 browser.close()
