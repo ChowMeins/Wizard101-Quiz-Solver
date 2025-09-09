@@ -49,12 +49,13 @@ def main():
         with open("nontrivia_urls.txt", "r") as f:
             nontrivia_urls = set(line.strip() for line in f.readlines() if line.strip())
 
-        forced_quiz = ["Eleventh Grade Vocabulary"]
+        # Insert any trivia title to testing these quizzes first
+        forced_quiz = []
 
         # Shuffle once and take the first 10
         remaining_quizzes = [quiz for quiz in quizzes if quiz not in forced_quiz]
         quiz_samples = forced_quiz + random.sample(remaining_quizzes, 10 - len(forced_quiz))
-        print(remaining_quizzes)
+        print(quiz_samples)
 
         for title in quiz_samples:   
             # Load each quiz
