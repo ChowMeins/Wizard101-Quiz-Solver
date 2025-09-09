@@ -6,6 +6,7 @@ services:
       - ./src:/src
       - ./.env:/.env
       - ./logs:/logs
+      - ./snapshots:/snapshots
     working_dir: /src
     environment:
       - DISPLAY=:99
