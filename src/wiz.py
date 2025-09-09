@@ -183,6 +183,7 @@ def main():
                 print(f"Error claiming rewards: {e}")
                 timestamp = datetime.datetime.now().strftime("%m-%d_%H-%M-%S")
                 filename = f"screenshot_{timestamp}.png"
+                os.makedirs("../snapshots", exist_ok=True)
                 page.screenshot(path=f'../snapshots/{filename}')
                 browser.close()
                 return
