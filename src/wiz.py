@@ -1,4 +1,5 @@
 import random
+import time
 from playwright.sync_api import sync_playwright
 import datetime
 import json
@@ -41,34 +42,21 @@ def main():
             print(f"Error during login: {e}")
             browser.close()
             return
-        
-        # Navigate to Earn Crowns page
-        try:
-            earn_crowns_tab = page.locator("a[id='earnCrownsLink']")
-            earn_crowns_tab.wait_for(state="visible")
-            earn_crowns_tab.click()
-        except Exception as e:
-            print(f"Error navigating to Earn Crowns tab: {e}")
-            browser.close()
-            return
 
-        # Navigate to Play Trivia page
-        try:
-            play_trivia_link = page.locator("a[id='playTrivia']")
-            play_trivia_link.wait_for(state="visible")
-            play_trivia_link.click()
-        except Exception as e:
-            print(f"Error clicking Play Trivia link: {e}")
-            browser.close()
-            return
-        
         with open("quizzes.json", "r") as f:
             quizzes = json.load(f)
 
         with open("nontrivia_urls.txt", "r") as f:
             nontrivia_urls = set(line.strip() for line in f.readlines() if line.strip())
 
-        for title in random.sample(list(quizzes.keys()), 10):   
+        forced_quiz = ["Eleventh Grade Vocabulary"]
+
+        # Shuffle once and take the first 10
+        remaining_quizzes = [quiz for quiz in quizzes if quiz not in forced_quiz]
+        quiz_samples = forced_quiz + random.sample(remaining_quizzes, 10 - len(forced_quiz))
+        print(remaining_quizzes)
+
+        for title in quiz_samples:   
             # Load each quiz
             try:
                 trivia_title = "-".join(title.strip().lower().split(" "))
@@ -99,23 +87,40 @@ def main():
                 browser.close()
                 return
             
+            quiz_finished = False
+            quiz_question_count = 1
             # Answer the 12 questions in the quiz
-            for i in range(1, 13):
+            while quiz_finished == False:
+                if quiz_question_count >= 20:
+                    print(f"Quiz Question exceeded limit. An error has occured.")
+                    browser.close()
+                    return()
                 # Parse question text
                 try:
                     question_text = page.locator("div[class='quizQuestion']")
-                    question_text.wait_for(state="visible")
+                    question_text.wait_for(state="visible", timeout=5000)
                     question_text = question_text.inner_text().strip()
-                    #print(f"Question #{i}: {question_text}")
+                    print(f"Question #{quiz_question_count}: {question_text}")
                 except Exception as e:
-                    print(f"Error parsing question text: {e}")
-                    browser.close()
+                    # If the question text is not found, check if the quiz is completed by searching for the 'Claim Your Reward' Button
+                    try:
+                        claim_rewards_button = page.locator("a[class*='kiaccountsbuttongreen']", has_text="CLAIM YOUR REWARD")
+                        claim_rewards_button.wait_for(state="visible")
+                        quiz_finished = True
+                        quiz_question_count = 1
+                        continue
+                    except Exception as e:
+                        print(f"Quiz question not found, but Claim Rewards button not found either: {e}")
+                        time.sleep(100000)
+                        browser.close()
+                        return
                     return
                 # Parse each answer choice
                 try:
                     answer_container = page.locator("div[class='answersContainer']")
                     answer_choice = answer_container.locator("div[class*='answer']").all()
-                    answer_choice = [[answer.locator("span[class='answerBox']"), answer.locator("span[class='answerText']")] for answer in answer_choice]
+                    # 0 - Quiz Answer Box, 1 - Quiz Text
+                    answer_choice = [[answer.locator("a[name='checkboxtag']"), answer.locator("span[class='answerText']")] for answer in answer_choice]
                     correct_answer_found = False
                     correct_answer_text = ""
                 except Exception as e:
@@ -173,10 +178,11 @@ def main():
                     print(f"Error clicking Next Question button: {e}")
                     browser.close()
                     return
+                quiz_question_count += 1
             # Claim rewards after completing 12 questions
             try:
                 page.wait_for_load_state("networkidle")
-                claim_rewards_button = page.locator("a[class*='kiaccountsbuttongreen']")
+                claim_rewards_button = page.locator("a[class*='kiaccountsbuttongreen']", has_text="CLAIM YOUR REWARD")
                 claim_rewards_button.wait_for(state="visible")
                 claim_rewards_button.click()
             except Exception as e:
