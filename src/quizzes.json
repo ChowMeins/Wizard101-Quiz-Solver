@@ -1282,6 +1282,10 @@
         [
             "Which Greek god is the ruler of the Olympian gods?",
             "Zeus"
+        ],
+        [
+            "Which Greek is the sun titan?",
+            "Helios"
         ]
     ],
     "Habitats": [
@@ -1944,8 +1948,20 @@
     ],
     "State Animals": [
         [
+            "What is the state domestic animal of Wisconsin?",
+            "Dairy Cow"
+        ],
+        [
             "What is the state animal of California?",
             "Grizzly Bear"
+        ],
+        [
+            "What is the state animal of Colorado?",
+            "Rocky Mountain Bighorn Sheep"
+        ],
+        [
+            "What is the state animal of Connecticut?",
+            "Sperm Whale"
         ],
         [
             "What is the state animal of Florida?",
@@ -2050,6 +2066,10 @@
         [
             "What is the state dog of Alaska?",
             "Alaskan Malamute"
+        ],
+        [
+            "What is the state dog of Louisiana?",
+            "Catahoula Leopard Dog"
         ],
         [
             "What is the state dog of Maryland?",
@@ -2207,7 +2227,7 @@
         ],
         [
             "What is the state bird of Delaware?",
-            "Delaware Blue Hen"
+            "Blue Hen Chicken"
         ],
         [
             "What is the state bird of Florida?",

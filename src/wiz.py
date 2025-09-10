@@ -11,7 +11,7 @@ from transcribe import transcribe_audio
 def main():
     load_dotenv()
     with sync_playwright() as p:
-        browser = p.firefox.launch(headless=False)
+        browser = p.firefox.launch(headless=True)
         # Navigate to Wizard101 login page
         try:
             context = browser.new_context(
@@ -55,7 +55,7 @@ def main():
         # Shuffle once and take the first 10
         remaining_quizzes = [quiz for quiz in quizzes if quiz not in forced_quiz]
         quiz_samples = forced_quiz + random.sample(remaining_quizzes, 10 - len(forced_quiz))
-        print(quiz_samples)
+        #print(quiz_samples)
 
         for title in quiz_samples:   
             # Load each quiz
@@ -101,7 +101,7 @@ def main():
                     question_text = page.locator("div[class='quizQuestion']")
                     question_text.wait_for(state="visible", timeout=5000)
                     question_text = question_text.inner_text().strip()
-                    print(f"Question #{quiz_question_count}: {question_text}")
+                    #print(f"Question #{quiz_question_count}: {question_text}")
                 except Exception as e:
                     # If the question text is not found, check if the quiz is completed by searching for the 'Claim Your Reward' Button
                     try:
@@ -180,7 +180,8 @@ def main():
                     browser.close()
                     return
                 quiz_question_count += 1
-            # Claim rewards after completing 12 questions
+
+            # Claim rewards after completing all questions
             try:
                 page.wait_for_load_state("networkidle")
                 claim_rewards_button = page.locator("a[class*='kiaccountsbuttongreen']", has_text="CLAIM YOUR REWARD")
