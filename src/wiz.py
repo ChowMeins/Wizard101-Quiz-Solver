@@ -207,7 +207,6 @@ def main():
                 reward_submit.click()
             except Exception as e:
                 print(f"Error handling reward iframe: {e}")
-                browser.close()
                 return
             
             recaptcha_found = True
@@ -223,6 +222,7 @@ def main():
             
             if recaptcha_found:
                 recaptcha_solved = False
+                reload_count = 0
                 # If reCAPTCHA is found, switch to audio challenge
                 try:
                     page.wait_for_timeout(2000)
@@ -233,7 +233,7 @@ def main():
                 except Exception as e:
                     print(f"Error trigger audio reCAPTCHA challenge: {e}")
 
-                while recaptcha_solved == False:
+                while recaptcha_solved == False and reload_count < 10:
                     # Press 'PLAY' button
                     try:
                         page.wait_for_timeout(2000)
@@ -246,6 +246,7 @@ def main():
                         print(f"Error pressing PLAY button: {e}")
                         page.go_back()
                         page.go_forward()
+                        reload_count += 1
                         continue
                     
                     # Get audio URL
@@ -308,19 +309,16 @@ def main():
                         quiz_results = page.locator("div[id='quizResults']")
                         quiz_results.wait_for(state="visible")
                         log_file.write(f"{quiz_results.inner_text()}\n\n")
+                print(f"Quiz '{title}' completed with score: {quiz_score}")
             except Exception as e:
                 print(f"Error logging quiz results: {e}")
-                browser.close()
-                return
-            finally:
-                print(f"Quiz '{title}' completed with score: {quiz_score}")
-
-        
-
-
-        
-        # Keep the browser open for manual inspection
-        
+                timestamp = datetime.datetime.now().strftime("%m-%d_%H-%M-%S")
+                filename = f"screenshot_{timestamp}.png"
+                os.makedirs("../snapshots", exist_ok=True)
+                page.screenshot(path=f'../snapshots/{filename}')
+                continue
+            
+            
         browser.close()
 if __name__ == "__main__":
     main()
