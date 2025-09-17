@@ -11,7 +11,7 @@ from transcribe import transcribe_audio
 def main():
     load_dotenv()
     with sync_playwright() as p:
-        browser = p.firefox.launch(headless=True)
+        browser = p.firefox.launch(headless=True, args=['--mute-audio'])
         # Navigate to Wizard101 login page
         try:
             context = browser.new_context(
@@ -244,7 +244,8 @@ def main():
                     except Exception as e:
                         # Indicates that reCAPTCHA detected automated queries, reload to try and resolve the issue
                         print(f"Error pressing PLAY button: {e}")
-                        page.reload()
+                        page.go_back()
+                        page.go_forward()
                         continue
                     
                     # Get audio URL
