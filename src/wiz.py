@@ -11,7 +11,7 @@ from transcribe import transcribe_audio
 def main():
     load_dotenv()
     with sync_playwright() as p:
-        browser = p.firefox.launch(headless=True, args=['--mute-audio'])
+        browser = p.firefox.launch(headless=False, args=['--mute-audio'])
         # Navigate to Wizard101 login page
         try:
             context = browser.new_context(
@@ -26,6 +26,12 @@ def main():
             browser.close()
             return
         
+
+        '''
+
+        Log in user to their Wizard 101 account.
+
+        '''
         # Enter user info to login
         try:
             print("Attempting login with username:", os.getenv("WIZ_USERNAME"))
@@ -49,16 +55,29 @@ def main():
         with open("nontrivia_urls.txt", "r") as f:
             nontrivia_urls = set(line.strip() for line in f.readlines() if line.strip())
 
+
+        '''
+
+        Load quiz data, quiz titles, and the sample of 10 that will be solved
+
+        '''
         # Insert any trivia title to testing these quizzes first
-        forced_quiz = []
-
+        all_quiz_titles = list(quizzes.keys())
+        random.shuffle(all_quiz_titles)
         # Shuffle once and take the first 10
-        remaining_quizzes = [quiz for quiz in quizzes if quiz not in forced_quiz]
-        quiz_samples = forced_quiz + random.sample(remaining_quizzes, 10 - len(forced_quiz))
-        #print(quiz_samples)
+        quiz_samples: list = all_quiz_titles[:10]
+        all_quiz_titles = all_quiz_titles[10:]
+        print(quiz_samples)
+        
 
-        for title in quiz_samples:   
+        '''
+        
+        Loop through each quiz in the quiz samples
+
+        '''
+        while quiz_samples:  
             # Load each quiz
+            title = quiz_samples.pop(0)
             try:
                 trivia_title = "-".join(title.strip().lower().split(" "))
                 quiz_url = "https://www.wizard101.com/quiz/trivia/game/" + trivia_title
@@ -69,6 +88,7 @@ def main():
                 print("Failed to navigate to quiz URL:", e)
                 browser.close()
                 return
+            
             try:
                 quiz_completed = page.locator("div[class='quizThrottle']")
                 quiz_completed.wait_for(state="visible", timeout=3000)
@@ -88,14 +108,22 @@ def main():
                 browser.close()
                 return
             
+
+            '''
+            
+            Solve the quiz and answer all questions
+
+            '''
             quiz_finished = False
             quiz_question_count = 1
             # Answer the 12 questions in the quiz
             while quiz_finished == False:
+                # If the questions exceed a count of 20, end program
                 if quiz_question_count >= 20:
                     print(f"Quiz Question exceeded limit. An error has occured.")
                     browser.close()
                     return()
+                
                 # Parse question text
                 try:
                     question_text = page.locator("div[class='quizQuestion']")
@@ -108,40 +136,35 @@ def main():
                         claim_rewards_button = page.locator("a[class*='kiaccountsbuttongreen']", has_text="CLAIM YOUR REWARD")
                         claim_rewards_button.wait_for(state="visible")
                         quiz_finished = True
-                        quiz_question_count = 1
+                        quiz_question_count = 1 # Reset question count for next quiz
                         continue
                     except Exception as e:
                         print(f"Quiz question not found, but Claim Rewards button not found either: {e}")
-                        time.sleep(100000)
                         browser.close()
                         return
-                    return
+                    
                 # Parse each answer choice
                 try:
                     answer_container = page.locator("div[class='answersContainer']")
-                    answer_choice = answer_container.locator("div[class*='answer']").all()
-                    # 0 - Quiz Answer Box, 1 - Quiz Text
+                    answer_choice = answer_container.locator("div[class*='answer']").all() # 0 - Quiz Answer Box, 1 - Quiz Text
                     answer_choice = [[answer.locator("a[name='checkboxtag']"), answer.locator("span[class='answerText']")] for answer in answer_choice]
                     correct_answer_found = False
-                    correct_answer_text = ""
                 except Exception as e:
                     print(f"Error parsing answer choices: {e}")
                     browser.close()
                     return
+                
                 # Select the correct answer if it exists in the answer key
                 try:
-                    #print("Answer choices:")
                     for answer in answer_choice:
                         answer[1].wait_for(state="visible")
                         answer_text = answer[1].inner_text().strip()
-                        #print(f"- {answer_text}")
                         if answer_text in answer_key[question_text]:
                             answer[0].wait_for(state="visible")
                             page.wait_for_timeout(1000)
                             answer[0].click()
                             correct_answer_found = True
-                            correct_answer_text = answer_text
-                    # Otherwise, select the first answer choice
+                    # Otherwise, select the first answer choice and log the question
                     if not correct_answer_found:
                         os.makedirs("../logs", exist_ok=True)
                         with open("../logs/new_questions.txt", "a", encoding="utf-8") as f:
@@ -153,9 +176,6 @@ def main():
                         answer_choice[0][0].wait_for(state="visible")
                         page.wait_for_timeout(1000)
                         answer_choice[0][0].click()
-                        #print(f"No correct answer found in the answer key. Choosing first answer choice: {answer_choice[0][1].inner_text()}.")
-                    ##else:
-                        #print(f"Correct answer found: {correct_answer_text}")
                 except Exception as e:
                     print(f"Error selecting correct answer: {e}")
                     browser.close()
@@ -220,6 +240,7 @@ def main():
                 recaptcha_found = False
                 pass
             
+            # If recaptcha iframe was found...
             if recaptcha_found:
                 recaptcha_solved = False
                 reload_count = 0
@@ -232,8 +253,12 @@ def main():
                     #print("reCAPTCHA challenge detected. Solving now...")
                 except Exception as e:
                     print(f"Error trigger audio reCAPTCHA challenge: {e}")
+                
 
-                while recaptcha_solved == False and reload_count < 10:
+                '''
+                Attemping to solve the recaptcha, loop until page has reloaded 5 times.
+                '''
+                while recaptcha_solved == False:
                     # Press 'PLAY' button
                     try:
                         page.wait_for_timeout(2000)
@@ -242,12 +267,11 @@ def main():
                         play_audio_button.wait_for(state="visible", timeout=5000)
                         play_audio_button.click()
                     except Exception as e:
-                        # Indicates that reCAPTCHA detected automated queries, reload to try and resolve the issue
+                        # Indicates that reCAPTCHA detected automated queries, simply skips the quiz and adds a new quiz to the quiz_samples 
                         print(f"Error pressing PLAY button: {e}")
-                        page.go_back()
-                        page.go_forward()
-                        reload_count += 1
-                        continue
+                        quiz_samples += all_quiz_titles[:1]
+                        all_quiz_titles = all_quiz_titles[1:]
+                        break
                     
                     # Get audio URL
                     try:
@@ -316,8 +340,7 @@ def main():
                 filename = f"screenshot_{timestamp}.png"
                 os.makedirs("../snapshots", exist_ok=True)
                 page.screenshot(path=f'../snapshots/{filename}')
-                continue
-            
+                continue            
             
         browser.close()
 if __name__ == "__main__":
