@@ -1029,6 +1029,10 @@
             "Jack Kerouac"
         ],
         [
+            "Who wrote One Flew Over the Cuckoo's Nest?",
+            "Ken Kesey"
+        ],
+        [
             "Who wrote Slaughterhouse-Five?",
             "Kurt Vonnegut"
         ],
@@ -1606,6 +1610,10 @@
             "Forseti"
         ],
         [
+            "Who was the god of mischief?",
+            "Loki"
+        ],
+        [
             "Who was the god of revenge?",
             "Vali"
         ],
@@ -1620,10 +1628,6 @@
         [
             "Who was the god of the daytime?",
             "Dagr"
-        ],
-        [
-            "Who was the goddess of old age?",
-            "Elli"
         ],
         [
             "Who was the god of thunder and battle?",
@@ -1662,12 +1666,20 @@
             "Nott"
         ],
         [
+            "Who was the goddess of old age?",
+            "Elli"
+        ],
+        [
             "Who was the goddess of prudence?",
             "Snotra"
         ],
         [
             "Who was the goddess of the sea?",
             "Ran"
+        ],
+        [
+            "Who was the goddess of spring?",
+            "Eostre"
         ],
         [
             "Who was the goddess of the sun?",
@@ -2060,6 +2072,10 @@
             "Badger"
         ],
         [
+            "What is the state mammal of Wyoming?",
+            "Buffalo"
+        ],
+        [
             "What is the state cat of Maine?",
             "Maine Coon Cat"
         ],
@@ -2170,6 +2186,10 @@
         [
             "What is the state mammal of Nebraska?",
             "White-Tailed Deer"
+        ],
+        [
+            "What is the state marine animal of Delaware?",
+            "Horseshoe Crab"
         ],
         [
             "What is the state marine mammal of Alaska?",
@@ -2947,7 +2967,7 @@
         ],
         [
             "What is unique about Falmea's Classroom?",
-            "There are scorch marks on the celing"
+            "There are scorch marks on the ceiling"
         ],
         [
             "What school is the Gurtok Demon focused on?",
