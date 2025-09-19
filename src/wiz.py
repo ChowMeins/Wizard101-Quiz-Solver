@@ -67,9 +67,8 @@ def main():
         # Shuffle once and take the first 10
         quiz_samples: list = all_quiz_titles[:10]
         all_quiz_titles = all_quiz_titles[10:]
-        print(quiz_samples)
+        #print(quiz_samples)
         
-
         '''
         
         Loop through each quiz in the quiz samples
@@ -216,6 +215,7 @@ def main():
                 browser.close()
                 return
             
+
             # Handle reward iframe and log results
             try:
                 page.wait_for_load_state("networkidle")
@@ -230,6 +230,7 @@ def main():
                 return
             
             recaptcha_found = True
+            recaptcha_solved = False
             # Check for reCAPTCHA popup
             try:
                 recaptcha_iframe = reward_iframe.locator("iframe[title*='recaptcha']")
@@ -242,7 +243,6 @@ def main():
             
             # If recaptcha iframe was found...
             if recaptcha_found:
-                recaptcha_solved = False
                 reload_count = 0
                 # If reCAPTCHA is found, switch to audio challenge
                 try:
@@ -316,31 +316,32 @@ def main():
                         recaptcha_solved = True
                         print("reCAPTCHA solved successfully.")
                         break
-                
-            # Log quiz results if 100% score not achieved
-            try:
-                page.wait_for_load_state("networkidle")
-                quiz_score = page.locator("div[class*='quizScore']")
-                quiz_score.wait_for(state="visible")
-                quiz_score = quiz_score.inner_text().strip()
-                if quiz_score != "100%":
-                    os.makedirs("../logs", exist_ok=True)
-                    with open("../logs/quiz_log.txt", "a", encoding="utf-8") as log_file:
-                        log_file.write(f"Quiz '{title}' completed with score: {quiz_score}\n\n")
-                        show_answers = page.locator("a", has_text="See correct answers!")
-                        show_answers.wait_for(state="visible")
-                        show_answers.click()
-                        quiz_results = page.locator("div[id='quizResults']")
-                        quiz_results.wait_for(state="visible")
-                        log_file.write(f"{quiz_results.inner_text()}\n\n")
-                print(f"Quiz '{title}' completed with score: {quiz_score}")
-            except Exception as e:
-                print(f"Error logging quiz results: {e}")
-                timestamp = datetime.datetime.now().strftime("%m-%d_%H-%M-%S")
-                filename = f"screenshot_{timestamp}.png"
-                os.makedirs("../snapshots", exist_ok=True)
-                page.screenshot(path=f'../snapshots/{filename}')
-                continue            
+            
+            if recaptcha_found == False or (recaptcha_found == True and recaptcha_solved == True):
+                # Log quiz results if 100% score not achieved
+                try:
+                    page.wait_for_load_state("networkidle")
+                    quiz_score = page.locator("div[class*='quizScore']")
+                    quiz_score.wait_for(state="visible")
+                    quiz_score = quiz_score.inner_text().strip()
+                    if quiz_score != "100%":
+                        os.makedirs("../logs", exist_ok=True)
+                        with open("../logs/quiz_log.txt", "a", encoding="utf-8") as log_file:
+                            log_file.write(f"Quiz '{title}' completed with score: {quiz_score}\n\n")
+                            show_answers = page.locator("a", has_text="See correct answers!")
+                            show_answers.wait_for(state="visible")
+                            show_answers.click()
+                            quiz_results = page.locator("div[id='quizResults']")
+                            quiz_results.wait_for(state="visible")
+                            log_file.write(f"{quiz_results.inner_text()}\n\n")
+                    print(f"Quiz '{title}' completed with score: {quiz_score}")
+                except Exception as e:
+                    print(f"Error logging quiz results: {e}")
+                    timestamp = datetime.datetime.now().strftime("%m-%d_%H-%M-%S")
+                    filename = f"screenshot_{timestamp}.png"
+                    os.makedirs("../snapshots", exist_ok=True)
+                    page.screenshot(path=f'../snapshots/{filename}')
+                    continue            
             
         browser.close()
 if __name__ == "__main__":
