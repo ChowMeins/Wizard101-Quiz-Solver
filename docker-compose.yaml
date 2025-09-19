@@ -4,7 +4,6 @@ services:
     container_name: Wizard101_Quiz_Solver
     volumes:
       - ./src:/src
-      - ./.env:/.env
       - ./logs:/logs
       - ./snapshots:/snapshots
     working_dir: /src
