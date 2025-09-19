@@ -4,6 +4,7 @@ WORKDIR /src
 
 COPY requirements.txt /src/
 COPY .env /src/
+RUN ls -la
 #pip caches downloaded packages in a cache directory (usually ~/.cache/pip) inside the container while installing.
 #This cache can add tens or even hundreds of MB to your Docker image, even though you don’t need it after the installation is done.
 RUN python -m pip install --upgrade pip \
