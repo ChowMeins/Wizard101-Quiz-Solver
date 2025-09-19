@@ -11,13 +11,11 @@ from transcribe import transcribe_audio
 def main():
     load_dotenv()
     with sync_playwright() as p:
-        browser = p.firefox.launch(headless=False, args=['--mute-audio'])
+        browser = p.firefox.launch(headless=False)
         # Navigate to Wizard101 login page
         try:
             context = browser.new_context(
-                user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-                        "AppleWebKit/537.36 (KHTML, like Gecko) "
-                        "Chrome/121.0.0.0 Safari/537.36"
+                user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
             )
             page = context.new_page()
             page.goto("https://www.wizard101.com/game", wait_until=("networkidle"))
@@ -160,7 +158,7 @@ def main():
                         answer_text = answer[1].inner_text().strip()
                         if answer_text in answer_key[question_text]:
                             answer[0].wait_for(state="visible")
-                            page.wait_for_timeout(1000)
+                            page.wait_for_timeout(random.uniform(1000,2000))
                             answer[0].click()
                             correct_answer_found = True
                     # Otherwise, select the first answer choice and log the question
@@ -173,7 +171,7 @@ def main():
                                 f.write(f"- {answer_text}\n")
                             f.write("\n")
                         answer_choice[0][0].wait_for(state="visible")
-                        page.wait_for_timeout(1000)
+                        page.wait_for_timeout(random.uniform(1000,2000))
                         answer_choice[0][0].click()
                 except Exception as e:
                     print(f"Error selecting correct answer: {e}")
@@ -192,7 +190,7 @@ def main():
                                 (button.style.visibility === 'visible' || getComputedStyle(button).visibility === 'visible');
                         }"""
                     )
-                    page.wait_for_timeout(1000)
+                    page.wait_for_timeout(random.uniform(1000,2000))
                     next_question_button.click()
                 except Exception as e:
                     print(f"Error clicking Next Question button: {e}")
@@ -223,7 +221,7 @@ def main():
                 reward_iframe = page.frame_locator("iframe[id='jPopFrame_content']")
                 reward_submit = reward_iframe.locator("a[id='submit'], a[class='buttonsubmit']")
                 reward_submit.wait_for(state="visible")
-                page.wait_for_timeout(1000)
+                page.wait_for_timeout(random.uniform(1000,2000))
                 reward_submit.click()
             except Exception as e:
                 print(f"Error handling reward iframe: {e}")
@@ -246,7 +244,7 @@ def main():
                 reload_count = 0
                 # If reCAPTCHA is found, switch to audio challenge
                 try:
-                    page.wait_for_timeout(2000)
+                    page.wait_for_timeout(random.uniform(2000,3000))
                     audio_button = recaptcha_iframe.locator("button[id='recaptcha-audio-button']")
                     audio_button.wait_for(state="visible")
                     audio_button.click()
@@ -261,7 +259,7 @@ def main():
                 while recaptcha_solved == False:
                     # Press 'PLAY' button
                     try:
-                        page.wait_for_timeout(2000)
+                        page.wait_for_timeout(2000,3000)
                         audio_div = recaptcha_iframe.locator("div[class='rc-audiochallenge-control']")
                         play_audio_button = audio_div.locator("button", has_text="PLAY")
                         play_audio_button.wait_for(state="visible", timeout=5000)
