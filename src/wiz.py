@@ -11,7 +11,7 @@ from transcribe import transcribe_audio
 def main():
     load_dotenv()
     with sync_playwright() as p:
-        browser = p.firefox.launch(headless=False)
+        browser = p.firefox.launch(headless=True)
         # Navigate to Wizard101 login page
         try:
             context = browser.new_context(
@@ -244,9 +244,9 @@ def main():
                 reload_count = 0
                 # If reCAPTCHA is found, switch to audio challenge
                 try:
-                    page.wait_for_timeout(random.uniform(2000,4000))
                     audio_button = recaptcha_iframe.locator("button[id='recaptcha-audio-button']")
                     audio_button.wait_for(state="visible")
+                    page.wait_for_timeout(random.uniform(2000,4000))
                     audio_button.click()
                     #print("reCAPTCHA challenge detected. Solving now...")
                 except Exception as e:
@@ -259,10 +259,10 @@ def main():
                 while recaptcha_solved == False:
                     # Press 'PLAY' button
                     try:
-                        page.wait_for_timeout(random.uniform(2000,4000))
                         audio_div = recaptcha_iframe.locator("div[class='rc-audiochallenge-control']")
                         play_audio_button = audio_div.locator("button", has_text="PLAY")
                         play_audio_button.wait_for(state="visible", timeout=5000)
+                        page.wait_for_timeout(random.uniform(2000,4000))
                         play_audio_button.click()
                     except Exception as e:
                         # Indicates that reCAPTCHA detected automated queries, simply skips the quiz and adds a new quiz to the quiz_samples 
@@ -295,6 +295,7 @@ def main():
                     try:
                         verify_button = recaptcha_iframe.locator("button[id='recaptcha-verify-button']")
                         verify_button.wait_for(state="visible")
+                        page.wait_for_timeout(random.uniform(1000,3000))
                         verify_button.click()
                         #print("Submitted reCAPTCHA solution. Waiting for verification...")
                     except Exception as e:
