@@ -1,8 +1,0 @@
-Quiz Title: Wizard101 Adventuring
-Question: An unmodified Sun Serpent does what?
-Answer choices:
-- 840 Fire Damage, +10% Fire Armor Piercing + Stun Target
-- 300 + 800 Fire Damage over 3 Rounds to entire team
-- 900 � 1000 Fire Damage + 300 Fire Damage to entire team
-- 440 + 351 Fire Damage over 3 Rounds to entire team
-
