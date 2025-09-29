@@ -207,7 +207,9 @@ class QuizBot:
                 self.solve_recaptcha(reward_iframe = reward_iframe, recaptcha_iframe = recaptcha_iframe)
             except Exception as e:
                 raise RecaptchaFailedException(f"Error solving reCAPTCHA: {e}")
-        except:
+        except RecaptchaFailedException:
+            raise
+        except Exception as e:
             # No reCAPTCHA found, quiz may be solved without needing to do reCAPTCHA
             pass
         return True
