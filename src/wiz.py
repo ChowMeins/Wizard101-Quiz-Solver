@@ -203,12 +203,9 @@ class QuizBot:
             recaptcha_iframe = reward_iframe.locator("iframe[title*='recaptcha']")
             recaptcha_iframe.wait_for(state="visible", timeout=5000)
             recaptcha_iframe = reward_iframe.frame_locator("iframe[title*='recaptcha']")
-            try:
-                self.solve_recaptcha(reward_iframe = reward_iframe, recaptcha_iframe = recaptcha_iframe)
-            except Exception as e:
-                raise RecaptchaFailedException(f"Error solving reCAPTCHA: {e}")
+            self.solve_recaptcha(reward_iframe = reward_iframe, recaptcha_iframe = recaptcha_iframe)
         except RecaptchaFailedException:
-            raise
+            raise RecaptchaFailedException(f"Error solving reCAPTCHA: {e}")
         except Exception as e:
             # No reCAPTCHA found, quiz may be solved without needing to do reCAPTCHA
             pass
