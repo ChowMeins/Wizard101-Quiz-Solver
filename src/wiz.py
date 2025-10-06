@@ -1,7 +1,7 @@
 import random
 import time
 import playwright
-from playwright.sync_api import sync_playwright, Page, Browser, Frame
+from playwright.sync_api import sync_playwright, Page, Browser, Frame, Locator
 import datetime
 import json
 from collections import defaultdict
@@ -15,6 +15,7 @@ class QuizBot:
         load_dotenv()
         self.username: str = os.getenv("WIZ_USERNAME")
         self.password: str = os.getenv("WIZ_PASSWORD")
+
         if not self.username or not self.password:
             raise LoginException("Username or password not found in environment variables")
         
@@ -42,12 +43,25 @@ class QuizBot:
         self.browser: Browser = None
         self.page: Page = None
 
+    def wait_and_click(self, element: Locator) -> None:
+        """Wait for a certain timeout and click the element"""
+        try:
+            element.wait_for(state="visible", timeout=5000)
+            self.page.wait_for_timeout(random.uniform(500,5000))
+            element.click()
+        except Exception:
+            raise
+        
     def setup_browser(self, p):
         """Initialize browser and login"""
         try:
             self.browser = p.firefox.launch(headless=False)
             context = self.browser.new_context(
-                user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+                user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/115.0",
+                locale='en-US',
+                timezone_id='America/New_York',
+                permissions=['geolocation'],
+                geolocation={'longitude': float(os.getenv("GEO_LONGITUDE")), 'latitude': float(os.getenv("GEO_LATITUDE"))}
             )
             self.page = context.new_page()
             self.page.goto("https://www.wizard101.com/game", wait_until="networkidle")
@@ -58,7 +72,7 @@ class QuizBot:
             self.page.locator("input[id='loginPassword']").fill(self.password)
             
             with self.page.expect_navigation(wait_until="networkidle"):
-                self.page.locator("div[class='wizardButtonInput']").click()
+                self.wait_and_click(self.page.locator("div[class='wizardButtonInput']"))
             print("Login successful!")
         except Exception as e:
             raise LoginException(f"Failed to setup browser or login: {e}")
@@ -102,12 +116,12 @@ class QuizBot:
             # Parse question text
             try:
                 question_text = self.page.locator("div[class='quizQuestion']")
-                question_text.wait_for(state="visible", timeout=5000)
+                question_text.wait_for(state="visible", timeout=3000)
                 question_text = question_text.inner_text().strip()
             except Exception as e:
                 # If the question text is not found, check if the quiz is completed by searching for the 'Claim Your Reward' Button
                 try:
-                    claim_rewards_button = self.page.locator("a[class*='kiaccountsbuttongreen']", has_text="CLAIM YOUR REWARD")
+                    claim_rewards_button = self.page.get_by_role("link", name="CLAIM YOUR REWARD")
                     claim_rewards_button.wait_for(state="visible")
                     quiz_finished = True
                     quiz_question_count = 1 # Reset question count for next quiz
@@ -131,8 +145,7 @@ class QuizBot:
                     answer_text = answer[1].inner_text().strip()
                     if answer_text in answer_key[question_text]:
                         answer[0].wait_for(state="visible") # Wait for checkbox to appear
-                        self.page.wait_for_timeout(random.uniform(1000,1500))
-                        answer[0].click()
+                        self.wait_and_click(answer[0])
                         correct_answer_found = True
                         continue
                 # Otherwise, select the first answer choice and log the question
@@ -144,9 +157,7 @@ class QuizBot:
                             answer_text = answer[1].inner_text().strip()
                             f.write(f"- {answer_text}\n")
                         f.write("\n")
-                    answer_choice[0][0].wait_for(state="visible")
-                    self.page.wait_for_timeout(random.uniform(1000,1500))
-                    answer_choice[0][0].click()
+                    self.wait_and_click(answer_choice[0][0])
             except Exception as e:
                 raise QuizProcessingException(f"Error selecting correct answer: {e}")
 
@@ -162,8 +173,7 @@ class QuizBot:
                             (button.style.visibility === 'visible' || getComputedStyle(button).visibility === 'visible');
                     }"""
                 )
-                self.page.wait_for_timeout(random.uniform(1000,1500))
-                next_question_button.click()
+                self.wait_and_click(next_question_button)
             except Exception as e:
                 raise QuizProcessingException(f"Error clicking Next Question button: {e}")
             
@@ -175,9 +185,8 @@ class QuizBot:
         # Claim rewards after completing all questions
         try:
             self.page.wait_for_load_state("networkidle")
-            claim_rewards_button = self.page.locator("a[class*='kiaccountsbuttongreen']", has_text="CLAIM YOUR REWARD")
-            claim_rewards_button.wait_for(state="visible")
-            claim_rewards_button.click()
+            claim_rewards_button = self.page.get_by_role("link", name="CLAIM YOUR REWARD")
+            self.wait_and_click(claim_rewards_button)
         except Exception as e:
             timestamp = datetime.datetime.now().strftime("%m-%d_%H-%M-%S")
             filename = f"screenshot_{timestamp}.png"
@@ -189,12 +198,9 @@ class QuizBot:
         # Handle reward iframe and log results
         try:
             self.page.wait_for_load_state("networkidle")
-            self.page.wait_for_selector("iframe[id='jPopFrame_content']", state="visible")
-            reward_iframe = self.page.frame_locator("iframe[id='jPopFrame_content']")
-            reward_submit = reward_iframe.locator("a[id='submit'], a[class='buttonsubmit']")
-            reward_submit.wait_for(state="visible")
-            self.page.wait_for_timeout(random.uniform(1000,1500))
-            reward_submit.click()
+            reward_iframe = self.page.frame_locator("iframe[name='jPopFrame_content']")
+            reward_submit = reward_iframe.get_by_text("Claim Your Reward")
+            self.wait_and_click(reward_submit)
         except Exception as e:
             raise QuizProcessingException(f"Error handling reward iframe: {e}")
         
@@ -216,9 +222,7 @@ class QuizBot:
         # If reCAPTCHA is found, switch to audio challenge
         try:
             audio_button = recaptcha_iframe.locator("button[id='recaptcha-audio-button']")
-            audio_button.wait_for(state="visible")
-            self.page.wait_for_timeout(random.uniform(2000,2500))
-            audio_button.click()
+            self.wait_and_click(audio_button)
             #print("reCAPTCHA challenge detected. Solving now...")
         except Exception as e:
             raise RecaptchaFailedException(f"Error trigger audio reCAPTCHA challenge: {e}")
@@ -229,9 +233,7 @@ class QuizBot:
             try:
                 audio_div = recaptcha_iframe.locator("div[class='rc-audiochallenge-control']")
                 play_audio_button = audio_div.locator("button", has_text="PLAY")
-                play_audio_button.wait_for(state="visible", timeout=5000)
-                self.page.wait_for_timeout(random.uniform(2000,2500))
-                play_audio_button.click()
+                self.wait_and_click(play_audio_button)
             except Exception as e:
                 # Indicates that reCAPTCHA detected automated queries, simply skips the quiz and adds a new quiz to the quiz_samples 
                 raise RecaptchaFailedException(f"Error pressing PLAY button: {e}")
@@ -255,9 +257,7 @@ class QuizBot:
             # Click the Verify button
             try:
                 verify_button = recaptcha_iframe.locator("button[id='recaptcha-verify-button']")
-                verify_button.wait_for(state="visible")
-                self.page.wait_for_timeout(random.uniform(1000,1500))
-                verify_button.click()
+                self.wait_and_click(verify_button)
                 #print("Submitted reCAPTCHA solution. Waiting for verification...")
             except Exception as e:
                raise RecaptchaFailedException(f"Error clicking Verify button: {e}")
@@ -267,8 +267,7 @@ class QuizBot:
                 recaptcha_presence = reward_iframe.frame_locator("iframe[title*='recaptcha']")
                 recaptcha_presence.wait_for(state="visible", timeout=5000)
                 reload_button = recaptcha_iframe.locator("button[id='recaptcha-reload-button']")
-                reload_button.wait_for(state="visible")
-                reload_button.click()
+                self.wait_and_click(reload_button)
                 #print("Multiple reCAPTCHA solutions required. Retrying...")
             # Break from the loop if the reCAPTCHA was solved successfully
             except:
@@ -289,8 +288,7 @@ class QuizBot:
                 with open("../logs/quiz_log.txt", "a", encoding="utf-8") as log_file:
                     log_file.write(f"Quiz '{title}' completed with score: {quiz_score}\n\n")
                     show_answers = self.page.locator("a", has_text="See correct answers!")
-                    show_answers.wait_for(state="visible")
-                    show_answers.click()
+                    self.wait_and_click(show_answers)
                     quiz_results = self.page.locator("div[id='quizResults']")
                     quiz_results.wait_for(state="visible")
                     log_file.write(f"{quiz_results.inner_text()}\n\n")

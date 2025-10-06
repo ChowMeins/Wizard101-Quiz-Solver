@@ -24,6 +24,12 @@ class QuizProcessingException(QuizBotException):
     """
     pass
 
+class LocatorNotFoundException(QuizBotException):
+    """
+    Raised when a specific web element (locator) cannot be found on the page.
+    This could be due to changes in the website layout or incorrect selectors.
+    """
+    pass
 class LoginException(QuizBotException):
     """
     Raised when login fails due to invalid credentials or website issues.
