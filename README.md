@@ -43,10 +43,14 @@ An intelligent Python bot that automatically solves Wizard101's daily trivia qui
    ```
 
 2. **Create environment file**
+
+   The .env file requires the username, password, and your coordinates.
    > Do it manually, otherwise, you can do this
-   ```bash
-   echo "WIZ_USERNAME=your_username_here" > .env
-   echo "WIZ_PASSWORD=your_password_here" >> .env
+   ```env
+   WIZ_USERNAME=your_wizard101_username
+   WIZ_PASSWORD=your_wizard101_password
+   GEO_LONGITUDE=your_longitude_coordinates
+   GEO_LATITUDE=your_latitude_coordinates
    ```
 
 4. **Run with Docker**
@@ -84,6 +88,8 @@ playwright install firefox
 ```env
 WIZ_USERNAME=your_wizard101_username
 WIZ_PASSWORD=your_wizard101_password
+GEO_LONGITUDE=your_longitude_coordinates
+GEO_LATITUDE=your_latitude_coordinates
 ```
 
 ### **Docker Features**
@@ -114,7 +120,7 @@ The bot uses **Faster Whisper** (`distil-small.en` model) for audio captcha solv
 
 ## **Limitations**
 
-- **reCAPTCHA**: Visual captchas require manual intervention
+- **reCAPTCHA**: reCAPTCHA can and will detected automated queries, preventing the claiming of rewards.
 - **Rate Limiting**: Respectful delays to avoid detection
 - **Educational Purpose**: This project is for learning automation techniques
 
