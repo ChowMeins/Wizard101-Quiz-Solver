@@ -65,7 +65,7 @@ The bot will automatically download the Whisper model, install dependencies, and
 ### **Prerequisites**
 ```bash
 pip install -r requirements.txt
-playwright install chromiumplapla
+playwright install chromium
 ```
 
 ### **Required packages**
@@ -86,8 +86,6 @@ playwright install chromiumplapla
 ```env
 WIZ_USERNAME=your_wizard101_username
 WIZ_PASSWORD=your_wizard101_password
-GEO_LONGITUDE=your_longitude_coordinates
-GEO_LATITUDE=your_latitude_coordinates
 ```
 
 ### **Docker Features**
