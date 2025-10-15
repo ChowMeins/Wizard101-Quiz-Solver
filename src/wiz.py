@@ -43,11 +43,11 @@ class QuizBot:
         self.browser: Browser = None
         self.page: Page = None
 
-    def wait_and_click(self, element: Locator) -> None:
+    def wait_and_click(self, element: Locator, start: float = 0.0, end: float = 1.0) -> None:
         """Wait for a certain timeout and click the element"""
         try:
             element.wait_for(state="visible", timeout=5000)
-            self.page.wait_for_timeout(random.uniform(500,5000))
+            self.page.wait_for_timeout(random.uniform(start, end) * 1000)  # Convert to milliseconds
             element.click()
         except Exception:
             raise
@@ -55,15 +55,14 @@ class QuizBot:
     def setup_browser(self, p):
         """Initialize browser and login"""
         try:
-            self.browser = p.firefox.launch(headless=False)
-            context = self.browser.new_context(
-                user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/115.0",
-                locale='en-US',
-                timezone_id='America/New_York',
-                permissions=['geolocation'],
-                geolocation={'longitude': float(os.getenv("GEO_LONGITUDE")), 'latitude': float(os.getenv("GEO_LATITUDE"))}
+            self.browser = p.chromium.launch_persistent_context(
+                user_data_dir="../playwright_profile",
+                channel='chrome',
+                headless=False,
+                no_viewport=True
             )
-            self.page = context.new_page()
+
+            self.page = self.browser.new_page()
             self.page.goto("https://www.wizard101.com/game", wait_until="networkidle")
             
             # Login
@@ -222,7 +221,7 @@ class QuizBot:
         # If reCAPTCHA is found, switch to audio challenge
         try:
             audio_button = recaptcha_iframe.locator("button[id='recaptcha-audio-button']")
-            self.wait_and_click(audio_button)
+            self.wait_and_click(audio_button, start=1.0, end=2.0)
             #print("reCAPTCHA challenge detected. Solving now...")
         except Exception as e:
             raise RecaptchaFailedException(f"Error trigger audio reCAPTCHA challenge: {e}")

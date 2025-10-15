@@ -30,6 +30,7 @@ class LocatorNotFoundException(QuizBotException):
     This could be due to changes in the website layout or incorrect selectors.
     """
     pass
+
 class LoginException(QuizBotException):
     """
     Raised when login fails due to invalid credentials or website issues.
