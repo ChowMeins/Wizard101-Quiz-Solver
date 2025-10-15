@@ -49,8 +49,6 @@ An intelligent Python bot that automatically solves Wizard101's daily trivia qui
    ```env
    WIZ_USERNAME=your_wizard101_username
    WIZ_PASSWORD=your_wizard101_password
-   GEO_LONGITUDE=your_longitude_coordinates
-   GEO_LATITUDE=your_latitude_coordinates
    ```
 
 4. **Run with Docker**
@@ -67,7 +65,7 @@ The bot will automatically download the Whisper model, install dependencies, and
 ### **Prerequisites**
 ```bash
 pip install -r requirements.txt
-playwright install firefox
+playwright install chromiumplapla
 ```
 
 ### **Required packages**
